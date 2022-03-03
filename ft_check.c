@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 17:19:20 by samoreno          #+#    #+#             */
-/*   Updated: 2022/03/02 13:20:56 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/03/03 11:16:24 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,5 +48,8 @@ static void	ft_simple(char **split, t_list *env)
 		ft_export(command, env);
 	if (ft_is_exact(command[0], "unset", ft_strlen(command[0])) == 0)
 		ft_unset(command, env);
+	if (ft_is_exact(command[0], "echo", ft_strlen(command[0])) == 0)
+		ft_echo(command, env);
 	ft_free(command, ft_count_split(command));
+
 }
