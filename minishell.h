@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 16:16:46 by samoreno          #+#    #+#             */
-/*   Updated: 2022/03/03 11:43:02 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/03/03 12:44:27 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,5 +62,6 @@ void	ft_order(t_list *env);
 void	ft_unset(char **command, t_list *env);
 void	ft_used(char **comm, int seen);
 void	ft_echo(char **command, t_list *env);
+void	ft_cd(char **command, t_list *env);
 
 #endif

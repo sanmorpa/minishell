@@ -1,5 +1,5 @@
 SRCS =		main.c ft_check.c ft_outils1.c ft_outils2.c ft_commands.c ft_env.c ft_exec.c \
-			ft_export.c ft_export_outils.c ft_lst_outils.c ft_unset.c ft_echo.c
+			ft_export.c ft_export_outils.c ft_lst_outils.c ft_unset.c ft_echo.c ft_cd.c
 
 OBJS    =   ${SRCS:.c=.o}
 
