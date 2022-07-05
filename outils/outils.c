@@ -1,46 +1,47 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   outils.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/13 09:57:02 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/05 11:10:00 by samoreno         ###   ########.fr       */
+/*   Created: 2022/06/13 11:35:34 by samoreno          #+#    #+#             */
+/*   Updated: 2022/07/05 10:52:29 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	ft_leaks(void)
+int	is_equal(char *str)
 {
-	system("leaks -q minishell");
+	int	i;
+
+	i = 0;
+	while (str[i] != '=' && str[i])
+		i++;
+	return (i);
 }
 
-int	main(int argc, char **argv, char **envp)
+int	is_number(char *str)
 {
-	char	*read;
-	int		comm;
-	t_list	*env;
+	int	iter;
 
-//	atexit(ft_leaks);
-	(void)argc, (void)argv;
-	comm = 0;
-	env = envlist(envp);
-	if (!env)
-		return (print_error(-1));
-	while (comm == 0)
+	iter = 0;
+	while (str[iter])
 	{
-		read = readline("minishell$ ");
-		if (read[0])
-		{
-			add_history(read);
-			parser(read, env);
-		}
-		else
-			ft_exit(NULL, env);
-		free(read);
+		if (ft_isdigit(str[iter]) == 0)
+			return (1);
+		iter++;
 	}
-	rl_clear_history();
 	return (0);
+}
+
+int	count_split(char **split)
+{
+	int	iter;
+
+	iter = 0;
+	while (split[iter])
+		iter++;
+	return (iter);
 }

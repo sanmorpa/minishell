@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_export.c                                        :+:      :+:    :+:   */
+/*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samoreno <samoreno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 10:55:10 by samoreno          #+#    #+#             */
-/*   Updated: 2022/03/02 16:12:48 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/04 09:40:16 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 static int	ft_addexport(char **command, t_list *env);
-static int	ft_replace(char *command, t_list *env);
+static int	ft_replace(char *comm, t_list *env);
 static void	ft_orderprint(t_list *env, char **command);
 
 void	ft_export(char **command, t_list *env)
 {
 	int		iter;
 
-	iter = ft_count_split(command) - 1;
+	iter = count_split(command) - 1;
 	if (iter != 0)
 	{
 		if (ft_vars(command) == 0 && command[1][0] != '-')
@@ -28,13 +28,13 @@ void	ft_export(char **command, t_list *env)
 			while (iter >= 1)
 			{
 				if (ft_replace(command[iter], env) == 2)
-					ft_exitfree(command, 1, env);
+					exitfree(command, 1, env);
 				if (ft_replace(command[iter], env) == 0)
 					ft_used(command, iter);
 				iter--;
 			}
 			if (ft_addexport(command, env) == 1)
-				ft_exitfree(command, 1, env);
+				exitfree(command, 1, env);
 		}
 		else
 			printf("Input not valid\n");
@@ -51,7 +51,7 @@ static void	ft_orderprint(t_list *env, char **command)
 	if (!copy)
 	{
 		ft_lstclear(&copy, ft_delcopy);
-		ft_exitfree(command, 1, env);
+		exitfree(command, 1, env);
 	}
 	ft_order(copy);
 	ft_lstclear(&copy, ft_delcopy);
@@ -68,7 +68,7 @@ static int	ft_addexport(char **command, t_list *env)
 	{
 		if (command[i][0])
 		{
-			entry = ft_dict(command[i]);
+			entry = dict(command[i]);
 			if (!entry->key)
 				return (1);
 			add = ft_lstnew((void *)entry);
@@ -99,27 +99,27 @@ void	ft_used(char **comm, int seen)
 	}
 }
 
-static int	ft_replace(char *command, t_list *env)
+static int	ft_replace(char *comm, t_list *env)
 {
 	int		e;
 	t_dict	*el;
 
-	if (command[0])
+	if (comm[0])
 	{
 		while (env)
 		{
 			el = env->content;
-			e = ft_isequal(command);
+			e = ft_isequal(comm);
 			if (ft_isequal(el->key) > e)
 				e = ft_isequal(el->key);
-			if (ft_is_exact(el->key, command, e) == 0)
+			if (ft_is_exact(el->key, comm, e) == 0 && ft_declared(comm) == 0)
 			{
 				free(el->value);
-				el->value = malloc(sizeof(char) * (ft_strlen(command) - e + 1));
+				el->value = malloc(sizeof(char) * (ft_strlen(comm) - e + 1));
 				if (!el->value)
 					return (2);
-				command += e + 1;
-				ft_strlcpy(el->value, command, ft_strlen(command) + 1);
+				comm += e + 1;
+				ft_strlcpy(el->value, comm, ft_strlen(comm) + 1);
 				return (0);
 			}
 			env = env->next;

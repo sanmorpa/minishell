@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 10:41:24 by samoreno          #+#    #+#             */
-/*   Updated: 2022/03/01 12:23:25 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/03/14 11:12:37 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,14 @@
 
 static int	ft_isprev(t_list *now, t_list *next);
 static void	ft_printexport(void *env);
+
+int	ft_declared(char *comm)
+{
+	if ((size_t)ft_isequal(comm) != ft_strlen(comm))
+		return (0);
+	comm[0] = 0;
+	return (1);
+}
 
 void	ft_order(t_list *env)
 {

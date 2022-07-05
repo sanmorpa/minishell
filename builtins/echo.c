@@ -1,46 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   echo.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/13 09:57:02 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/05 11:10:00 by samoreno         ###   ########.fr       */
+/*   Created: 2022/03/03 11:15:50 by samoreno          #+#    #+#             */
+/*   Updated: 2022/07/05 15:12:50 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	ft_leaks(void)
+void	ft_echo(char **command, t_list *env)
 {
-	system("leaks -q minishell");
-}
+	size_t	n;
+	int		iter;
 
-int	main(int argc, char **argv, char **envp)
-{
-	char	*read;
-	int		comm;
-	t_list	*env;
-
-//	atexit(ft_leaks);
-	(void)argc, (void)argv;
-	comm = 0;
-	env = envlist(envp);
-	if (!env)
-		return (print_error(-1));
-	while (comm == 0)
+	iter = 1;
+	n = 0;
+	(void)env;
+	if (count_split(command) > 1)
 	{
-		read = readline("minishell$ ");
-		if (read[0])
+		while (command[iter] && ft_is_exact(command[iter], "-n",
+				ft_strlen(command[iter])) == 0)
 		{
-			add_history(read);
-			parser(read, env);
+			iter++;
+			n++;
 		}
-		else
-			ft_exit(NULL, env);
-		free(read);
+		while (command[iter])
+		{
+			printf("%s", command[iter]);
+			iter++;
+			if (command[iter])
+				printf(" ");
+		}
 	}
-	rl_clear_history();
-	return (0);
+	if (n == 0)
+		printf("\n");
 }

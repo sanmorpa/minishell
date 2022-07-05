@@ -1,46 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_check.c                                         :+:      :+:    :+:   */
+/*   simple.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samoreno <samoreno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/02/18 17:19:20 by samoreno          #+#    #+#             */
-/*   Updated: 2022/03/03 12:45:35 by samoreno         ###   ########.fr       */
+/*   Created: 2022/07/05 11:51:36 by samoreno          #+#    #+#             */
+/*   Updated: 2022/07/05 14:23:48 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	ft_simple(char **split, t_list *env);
-
-int	ft_check(char *str, t_list *env)
-{
-	char	**split;
-
-	split = ft_split(str, '|');
-	free(str);
-	if (!split)
-		return (1);
-//	ft_exec(split);
-	ft_simple(split, env);
-	return (0);
-}
-
-static void	ft_simple(char **split, t_list *env)
+void	ft_simple(t_comm *comm, t_list *env)
 {
 	char	**command;
 
-	command = ft_split(split[0], ' ');
-	ft_free(split, 1);
+	command = ft_split(comm->piped[0], ' ');
+	ft_free(comm->piped, 1);
 	if (!command)
-		ft_exitfree(NULL, 1, env);
+	{
+		free(comm->og);
+		free(comm->parsed);
+		free(comm->piped);
+		exit(print_error(-1));
+	}
 	if (ft_is_exact(command[0], "exit", ft_strlen(command[0])) == 0)
 		ft_exit(command, env);
 	if (ft_is_exact(command[0], "pwd", ft_strlen(command[0])) == 0)
 	{
-		if (ft_pwd(ft_count_split(command)) == 1)
-			ft_exitfree(command, 1, env);
+		if (ft_pwd(count_split(command)) == 1)
+			exitfree(command, 1, env);
 	}
 	if (ft_is_exact(command[0], "env", ft_strlen(command[0])) == 0)
 		ft_env(command, env);
@@ -52,5 +42,5 @@ static void	ft_simple(char **split, t_list *env)
 		ft_echo(command, env);
 	if (ft_is_exact(command[0], "cd", ft_strlen(command[0])) == 0)
 		ft_cd(command, env);
-	ft_free(command, ft_count_split(command));
+	ft_free(command, count_split(command));
 }

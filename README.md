@@ -1,4 +1,4 @@
-<h1>philosophers</h1>
+<h1>Minishell</h1>
 <h2>Project description</h2>
 <div>
 <!--  <a href="https://github.com/JaeSeoKim/badge42">
@@ -71,3 +71,4 @@
   <b>./minishell</b>
     </p>
 </div>
+

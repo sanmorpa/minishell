@@ -1,5 +1,8 @@
-SRCS =		main.c ft_check.c ft_outils1.c ft_outils2.c ft_commands.c ft_env.c ft_exec.c \
-			ft_export.c ft_export_outils.c ft_lst_outils.c ft_unset.c ft_echo.c ft_cd.c
+SRCS =		main.c ./builtins/commands.c ./builtins/echo.c ./builtins/cd.c\
+			./builtins/env.c ./builtins/export_outils.c ./builtins/export.c \
+			./builtins/unset.c ./builtins/exit.c ./outils/lst_outils.c ./outils/outils1.c \
+			./outils/outils2.c ./outils/outils.c ./parser/dqt_exception.c \
+			./parser/parser.c ./parser/quotes.c ./executer/simple.c
 
 OBJS    =   ${SRCS:.c=.o}
 
@@ -7,7 +10,7 @@ NAME	= 	minishell
 
 CFLAGS	=	-Wall -Wextra -Werror -g3 -fsanitize=address
 
-READ	=	-lreadline #-L /Users/$(USER)/.brew/opt/readline/lib -I /Users/$(USER)/.brew/opt/readline/include
+READ	=	-lreadline
 
 CC		=	gcc
 
@@ -31,7 +34,7 @@ clean:
 
 fclean:		clean
 			${RM} ${NAME}
-			${MAKELIBFT} fclean
+			@${MAKELIBFT} fclean
 
 re:			fclean ${NAME}
 
