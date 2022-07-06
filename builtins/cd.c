@@ -6,49 +6,64 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 12:35:56 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/05 13:08:25 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 12:39:01 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	ft_newpwd(t_list *env, char *newpwd);
+static int	change_env_pwd(char *oldpwd, t_comm *comm, char **command,
+				t_list *env);
 
-void	ft_cd(char **command, t_list *env)
+void	ft_cd(char **command, t_comm *comm, t_list *env)
 {
-	int	n;
+	char	*oldpwd;
 
-	n = count_split(command);
-	if (n != 2)
-		printf("Error: invalid syntax\n");
+	oldpwd = getcwd(NULL, 0);
+	if (!oldpwd)
+		exitfree(command, comm, print_error(-1), env);
 	else
 	{
-		if (ft_newpwd(env, command[1]) == 2)
-			exitfree(command, 1, env);
+		if (chdir(command[1]) != 0)
+			print_error(-1);
+		else
+		{
+			if (change_env_pwd(oldpwd, comm, command, env) != 0)
+			{
+				free(oldpwd);
+				exitfree(command, comm, print_error(-1), env);
+			}
+		}
+		free(oldpwd);
 	}
 }
 
-static int	ft_newpwd(t_list *env, char *newpwd)
+static int	change_env_pwd(char *oldpwd, t_comm *comm, char **command,
+		t_list *env)
 {
-	t_dict	*el;
-	size_t	n;
+	char	*newpwd;
+	char	*to_oldpwd;
+	char	*to_pwd;
 
-	while (env)
+	newpwd = getcwd(NULL, 0);
+	if (!newpwd)
+		return (1);
+	to_pwd = ft_strjoin("PWD=", newpwd);
+	to_oldpwd = ft_strjoin("OLDPWD=", oldpwd);
+	free(newpwd);
+	if (!to_pwd || !to_oldpwd)
 	{
-		el = env->content;
-		n = ft_strlen(el->key);
-		if (ft_strlen("PWD") > n)
-			n = ft_strlen("PWD");
-		if (ft_is_exact("PWD", el->key, n) == 0)
-		{
-			free(el->value);
-				el->value = malloc(sizeof(char) * (ft_strlen(newpwd) + 1));
-			if (!el->value)
-				return (2);
-			ft_strlcpy(el->value, newpwd, ft_strlen(newpwd) + 1);
-			return (0);
-		}
-		env = env->next;
+		free(oldpwd);
+		exitfree(command, comm, print_error(-1), env);
 	}
-	return (1);
+	if (ft_replace(to_pwd, env) == 2 || ft_replace(to_oldpwd, env) == 2)
+	{
+		free(to_pwd);
+		free(to_oldpwd);
+		free(oldpwd);
+		exitfree(command, comm, print_error(-1), env);
+	}
+	free(to_pwd);
+	free(to_oldpwd);
+	return (0);
 }

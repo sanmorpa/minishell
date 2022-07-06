@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 09:35:52 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/05 15:11:43 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 12:19:34 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,18 @@ void	parser(char *line, t_list *env)
 		print_error(22);
 	else
 	{
+		command.parsed = NULL;
+		command.piped = NULL;
 		command.og = line;
 		command.parsed = without_quotes(line, env);
+		if (!command.parsed)
+			exitfree(NULL, &command, print_error(-1), env);
 		command.piped = ft_split(command.parsed, '|');
+		if (!command.piped)
+			exitfree(NULL, &command, print_error(-1), env);
 		ft_simple(&command, env);
 		free(command.parsed);
+		ft_free(command.piped, count_split(command.piped));
 	}
 }
 
@@ -62,7 +69,8 @@ static void	fill_unquoted(char *read, char *unquoted, t_list *env)
 			if (read[i[0]] == '$')
 			{
 				i[1] += find_fill(read, unquoted, i[0], env);
-				while (read[i[0]] && read[i[0]] != ' ' && read[i[0]] != '"')
+				while (read[i[0]] && read[i[0]] != ' ' && read[i[0]] != '"'
+					&& read[i[0]] != '\'')
 					i[0]++;
 			}
 			else
@@ -82,7 +90,7 @@ int	find_fill(char *read, char *unquoted, size_t i, t_list *env)
 
 	i++;
 	j = i;
-	while (read[j] && read[j] != '"' && read[j] != ' ')
+	while (read[j] && read[j] != '"' && read[j] != ' ' && read[j] != '\'')
 		j++;
 	while (env)
 	{
@@ -91,11 +99,11 @@ int	find_fill(char *read, char *unquoted, size_t i, t_list *env)
 		{
 			ft_strlcat(unquoted, el->value,
 				(ft_strlen(unquoted) + ft_strlen(el->value) + 1));
-			return (j);
+			return (ft_strlen(unquoted));
 		}
 		env = env->next;
 	}
-	return (j);
+	return (0);
 }
 
 static int	fill_chars(char *read, char *unquoted, int i, char qt)

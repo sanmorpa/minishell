@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 09:57:02 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/05 11:10:00 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 13:04:49 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	main(int argc, char **argv, char **envp)
 	int		comm;
 	t_list	*env;
 
-//	atexit(ft_leaks);
+	atexit(ft_leaks);
 	(void)argc, (void)argv;
 	comm = 0;
 	env = envlist(envp);
@@ -37,10 +37,9 @@ int	main(int argc, char **argv, char **envp)
 			add_history(read);
 			parser(read, env);
 		}
-		else
-			ft_exit(NULL, env);
 		free(read);
 	}
+	ft_lstclear(&env, delcontent);
 	rl_clear_history();
 	return (0);
 }

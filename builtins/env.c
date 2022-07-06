@@ -6,11 +6,13 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 11:17:39 by samoreno          #+#    #+#             */
-/*   Updated: 2022/06/21 13:35:48 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 09:31:54 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	add_question(t_list *env);
 
 t_list	*envlist(char **envp)
 {
@@ -33,7 +35,23 @@ t_list	*envlist(char **envp)
 		}
 		ft_lstadd_back(&env, ft_lstnew((void *)entry));
 	}
+	if (add_question(env) == 1)
+		return (NULL);
 	return (env);
+}
+
+static int	add_question(t_list *env)
+{
+	t_dict	*entry;
+
+	entry = dict("?=0");
+	if (!entry->key)
+	{
+		ft_lstclear(&env, delcontent);
+		return (1);
+	}
+	ft_lstadd_back(&env, ft_lstnew((void *)entry));
+	return (0);
 }
 
 t_dict	*dict(char *envp)

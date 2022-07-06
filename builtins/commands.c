@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/21 08:57:57 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/04 09:41:53 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 12:26:15 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	ft_pwd(int count)
 		pwd = getcwd(NULL, 0);
 		if (!pwd)
 		{
-			perror("getcwd");
+			print_error(-1);
 			return (1);
 		}
 		printf("%s\n", pwd);

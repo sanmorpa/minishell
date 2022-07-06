@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_export_outils.c                                 :+:      :+:    :+:   */
+/*   export_outils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samoreno <samoreno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 10:41:24 by samoreno          #+#    #+#             */
-/*   Updated: 2022/03/14 11:12:37 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 09:35:16 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,11 @@ static void	ft_printexport(void *env)
 	t_dict	*el;
 
 	el = env;
-	if (ft_is_exact(el->key, "_", ft_strlen(el->key)) == 1 && el->value[0])
-		printf("declare -x %s=\"%s\"\n", el->key, el->value);
-	if (ft_is_exact(el->key, "_", ft_strlen(el->key)) == 1 && !el->value[0])
-		printf("declare -x %s\n", el->key);
+	if (ft_is_exact(el->key, "?", ft_strlen(el->key) != 0))
+	{
+		if (ft_is_exact(el->key, "_", ft_strlen(el->key)) == 1 && el->value[0])
+			printf("declare -x %s=\"%s\"\n", el->key, el->value);
+		if (ft_is_exact(el->key, "_", ft_strlen(el->key)) == 1 && !el->value[0])
+			printf("declare -x %s\n", el->key);
+	}
 }

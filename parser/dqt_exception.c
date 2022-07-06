@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 11:24:17 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/05 11:21:55 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 10:46:03 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	count_dqt_dollar(char *read, size_t i, t_list *env)
 
 	i++;
 	j = i;
-	while (read[j] && read[j] != '"' && read[j] != ' ')
+	while (read[j] && read[j] != '"' && read[j] != ' ' && read[j] != '\'')
 		j++;
 	while (env)
 	{
@@ -60,8 +60,9 @@ int	fill_dq_dollar(char *read, char *unquoted, int i, t_list *env)
 	{
 		if (read[i] == '$')
 		{
-			j += find_fill(read, unquoted, i, env);
-			while (read[i] && read[i] != ' ' && read[i] != '"')
+			j = find_fill(read, unquoted, i, env);
+			while (read[i] && read[i] != ' ' && read[i] != '"'
+				&& read[i] != '\'')
 				i++;
 		}
 		else

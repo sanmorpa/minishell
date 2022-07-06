@@ -6,15 +6,17 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 12:03:44 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/04 09:40:46 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 12:40:21 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+//Debuggear por que no fucniona primero
+
 static int	ft_erase(char *command, t_list **env);
 
-void	ft_unset(char **command, t_list *env)
+void	ft_unset(char **command, t_comm *comm, t_list *env)
 {
 	int	iter;
 
@@ -26,7 +28,7 @@ void	ft_unset(char **command, t_list *env)
 			while (iter >= 1)
 			{
 				if (ft_erase(command[iter], &env) == 2)
-					exitfree(command, 1, env);
+					exitfree(command, comm, 1, env);
 				if (ft_erase(command[iter], &env) == 0)
 					ft_used(command, iter);
 				iter--;

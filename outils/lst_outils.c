@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lst_outils.c                                    :+:      :+:    :+:   */
+/*   lst_outils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samoreno <samoreno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 10:45:47 by samoreno          #+#    #+#             */
-/*   Updated: 2022/03/01 12:22:08 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 09:33:42 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	ft_printenv(void *env)
 	t_dict	*el;
 
 	el = env;
-	if (el->value[0] != 0)
+	if (el->value[0] != 0 && ft_is_exact(el->key, "?", ft_strlen(el->key) != 0))
 		printf("%s=%s\n", el->key, el->value);
 }
 

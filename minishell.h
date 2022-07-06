@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 09:58:21 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/05 14:21:58 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 13:08:50 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,8 @@ t_dict	*dict(char *envp);
 //Funciones relacionadas con exit e impresión de errores
 int		print_error(int code);
 void	ft_free(char **array, int words);
-void	exitfree(char **split, int status, t_list *env);
-void	ft_exit(char **command, t_list *env);
+void	exitfree(char **split, t_comm *command, int status, t_list *env);
+void	ft_exit(char **command, t_comm *comm, t_list *env);
 //Funciones útiles en distintos casos
 int		is_equal(char *str);
 int		is_number(char *str);
@@ -65,6 +65,7 @@ void	*ft_placeholder(void *content);
 int		ft_is_exact(const char *src, const char *search, size_t n);
 int		ft_vars(char **command);
 int		ft_isequal(char *str);
+int		ft_replace(char *comm, t_list *env);
 //Funciones del parser
 void	parser(char *read, t_list *env);
 int		closed_quotes(char *read);
@@ -76,15 +77,15 @@ int		fill_dq_dollar(char *read, char *unquoted, int i, t_list *env);
 int		find_fill(char *read, char *unquoted, size_t i, t_list *env);
 int		count_dq(char *read, int i, int j, t_list *env);
 //Funciones relacionadas con comandos builtin
-void	ft_cd(char **command, t_list *env);
+void	ft_cd(char **command, t_comm *comm, t_list *env);
 int		ft_pwd(int count);
 void	ft_env(char **command, t_list *env);
 void	ft_echo(char **command, t_list *env);
 int		ft_declared(char *comm);
 void	ft_order(t_list *env);
-void	ft_export(char **command, t_list *env);
+void	ft_export(char **command, t_comm *comm, t_list *env);
 void	ft_used(char **comm, int seen);
-void	ft_unset(char **command, t_list *env);
+void	ft_unset(char **command, t_comm *comm, t_list *env);
 //Funciones relacionadas con ejecutar comandos
 void	ft_simple(t_comm *comm, t_list *env);
 #endif

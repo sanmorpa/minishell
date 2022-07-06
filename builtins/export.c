@@ -6,17 +6,16 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 10:55:10 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/04 09:40:16 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 12:39:52 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 static int	ft_addexport(char **command, t_list *env);
-static int	ft_replace(char *comm, t_list *env);
-static void	ft_orderprint(t_list *env, char **command);
+static void	ft_orderprint(t_list *env, t_comm *comm, char **command);
 
-void	ft_export(char **command, t_list *env)
+void	ft_export(char **command, t_comm *comm, t_list *env)
 {
 	int		iter;
 
@@ -28,22 +27,22 @@ void	ft_export(char **command, t_list *env)
 			while (iter >= 1)
 			{
 				if (ft_replace(command[iter], env) == 2)
-					exitfree(command, 1, env);
+					exitfree(command, comm, 1, env);
 				if (ft_replace(command[iter], env) == 0)
 					ft_used(command, iter);
 				iter--;
 			}
 			if (ft_addexport(command, env) == 1)
-				exitfree(command, 1, env);
+				exitfree(command, comm, 1, env);
 		}
 		else
 			printf("Input not valid\n");
 	}
 	else
-		ft_orderprint(env, command);
+		ft_orderprint(env, comm, command);
 }
 
-static void	ft_orderprint(t_list *env, char **command)
+static void	ft_orderprint(t_list *env, t_comm *comm, char **command)
 {
 	t_list	*copy;
 
@@ -51,7 +50,7 @@ static void	ft_orderprint(t_list *env, char **command)
 	if (!copy)
 	{
 		ft_lstclear(&copy, ft_delcopy);
-		exitfree(command, 1, env);
+		exitfree(command, comm, 1, env);
 	}
 	ft_order(copy);
 	ft_lstclear(&copy, ft_delcopy);
@@ -99,7 +98,7 @@ void	ft_used(char **comm, int seen)
 	}
 }
 
-static int	ft_replace(char *comm, t_list *env)
+int	ft_replace(char *comm, t_list *env)
 {
 	int		e;
 	t_dict	*el;

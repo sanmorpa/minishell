@@ -8,7 +8,7 @@ OBJS    =   ${SRCS:.c=.o}
 
 NAME	= 	minishell
 
-CFLAGS	=	-Wall -Wextra -Werror -g3 -fsanitize=address
+CFLAGS	=	-Wall -Wextra -Werror
 
 READ	=	-lreadline
 
