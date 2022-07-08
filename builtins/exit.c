@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 12:18:21 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 12:42:16 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/08 12:40:51 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ void	exitfree(char **split, t_comm *command, int status, t_list *env)
 			ft_free(command->piped, count_split(command->piped));
 	}
 	ft_lstclear(&env, delcontent);
+	rl_clear_history();
 	exit(status);
 }
 

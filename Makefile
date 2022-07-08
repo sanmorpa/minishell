@@ -2,7 +2,8 @@ SRCS =		main.c ./builtins/commands.c ./builtins/echo.c ./builtins/cd.c\
 			./builtins/env.c ./builtins/export_outils.c ./builtins/export.c \
 			./builtins/unset.c ./builtins/exit.c ./outils/lst_outils.c ./outils/outils1.c \
 			./outils/outils2.c ./outils/outils.c ./parser/dqt_exception.c \
-			./parser/parser.c ./parser/quotes.c ./executer/simple.c
+			./parser/parser.c ./parser/quotes.c ./executer/simple.c ./signals/handler.c \
+			
 
 OBJS    =   ${SRCS:.c=.o}
 

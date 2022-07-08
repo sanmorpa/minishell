@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 11:24:17 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 10:46:03 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 13:53:00 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,4 +94,21 @@ int	count_dq(char *read, int i, int j, t_list *env)
 		}
 	}
 	return (j);
+}
+
+void	fill_dollar_nqt(char *read, char *unquoted, t_list *env, int i[2])
+{
+	if (read[i[0]] == '$')
+	{
+		i[1] += find_fill(read, unquoted, i[0], env);
+		while (read[i[0]] && read[i[0]] != ' ' && read[i[0]] != '"'
+			&& read[i[0]] != '\'')
+			i[0]++;
+	}
+	else
+	{
+		i[1] = ft_strlen(unquoted);
+		unquoted[i[1]++] = read[i[0]++];
+		unquoted[i[1]] = 0;
+	}
 }

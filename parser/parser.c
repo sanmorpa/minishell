@@ -6,7 +6,7 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 09:35:52 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 12:19:34 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/07/06 13:53:59 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,21 +65,7 @@ static void	fill_unquoted(char *read, char *unquoted, t_list *env)
 		else if (read[i[0]] == '"')
 			i[0] = fill_dq_dollar(read, unquoted, i[0], env);
 		else
-		{
-			if (read[i[0]] == '$')
-			{
-				i[1] += find_fill(read, unquoted, i[0], env);
-				while (read[i[0]] && read[i[0]] != ' ' && read[i[0]] != '"'
-					&& read[i[0]] != '\'')
-					i[0]++;
-			}
-			else
-			{
-				i[1] = ft_strlen(unquoted);
-				unquoted[i[1]++] = read[i[0]++];
-				unquoted[i[1]] = 0;
-			}
-		}
+			fill_dollar_nqt(read, unquoted, env, i);
 	}
 }
 
