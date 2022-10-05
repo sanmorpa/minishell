@@ -3,46 +3,47 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: josuna-t <josuna-t@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 10:55:10 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 12:39:52 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/08/08 15:38:18 by josuna-t         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
 static int	ft_addexport(char **command, t_list *env);
-static void	ft_orderprint(t_list *env, t_comm *comm, char **command);
+static void	ft_orderprint(t_list *env, t_comm *comm);
 
-void	ft_export(char **command, t_comm *comm, t_list *env)
+int	ft_export(char **command, t_comm *comm, t_list *env, int iter)
 {
-	int		iter;
+	int	stat;
 
-	iter = count_split(command) - 1;
-	if (iter != 0)
+	stat = first_check_export(iter, command);
+	if (iter != 0 && command[1][0])
 	{
-		if (ft_vars(command) == 0 && command[1][0] != '-')
+		while (iter >= 1)
 		{
-			while (iter >= 1)
+			if (ft_vars(command[iter]) != 0 || command[iter][0] == '-')
+				stat = export_error(command, iter);
+			else
 			{
-				if (ft_replace(command[iter], env) == 2)
-					exitfree(command, comm, 1, env);
 				if (ft_replace(command[iter], env) == 0)
 					ft_used(command, iter);
-				iter--;
+				if (ft_replace(command[iter], env) == 2)
+					exitfree(comm, print_error(-1, "export"), env);
 			}
-			if (ft_addexport(command, env) == 1)
-				exitfree(command, comm, 1, env);
+			iter--;
 		}
-		else
-			printf("Input not valid\n");
+		if (ft_addexport(command, env) == 1)
+			exitfree(comm, print_error(-1, "export"), env);
 	}
-	else
-		ft_orderprint(env, comm, command);
+	else if (iter == 0)
+		ft_orderprint(env, comm);
+	return (stat);
 }
 
-static void	ft_orderprint(t_list *env, t_comm *comm, char **command)
+static void	ft_orderprint(t_list *env, t_comm *comm)
 {
 	t_list	*copy;
 
@@ -50,7 +51,7 @@ static void	ft_orderprint(t_list *env, t_comm *comm, char **command)
 	if (!copy)
 	{
 		ft_lstclear(&copy, ft_delcopy);
-		exitfree(command, comm, 1, env);
+		exitfree(comm, 1, env);
 	}
 	ft_order(copy);
 	ft_lstclear(&copy, ft_delcopy);
@@ -62,8 +63,8 @@ static int	ft_addexport(char **command, t_list *env)
 	t_dict	*entry;
 	t_list	*add;
 
-	i = 1;
-	while (command[i])
+	i = count_split(command) - 1;
+	while (i >= 1)
 	{
 		if (command[i][0])
 		{
@@ -71,9 +72,12 @@ static int	ft_addexport(char **command, t_list *env)
 			if (!entry->key)
 				return (1);
 			add = ft_lstnew((void *)entry);
+			if (!add)
+				return (1);
 			ft_lstadd_back(&env, add);
+			ft_used(command, i);
 		}
-		i++;
+		i--;
 	}
 	return (0);
 }
@@ -85,13 +89,13 @@ void	ft_used(char **comm, int seen)
 	int	eq_comp;
 
 	iter = 1;
-	eq_seen = ft_isequal(comm[seen]);
+	eq_seen = is_equal(comm[seen]);
 	while (iter <= seen)
 	{
-		eq_comp = ft_isequal(comm[iter]);
+		eq_comp = is_equal(comm[iter]);
 		if (eq_comp == eq_seen)
 		{
-			if (ft_is_exact(comm[seen], comm[iter], eq_seen) == 0)
+			if (ft_is_exact(comm[seen], comm[iter], eq_seen, 0) == 0)
 				comm[iter][0] = 0;
 		}
 		iter++;
@@ -108,19 +112,11 @@ int	ft_replace(char *comm, t_list *env)
 		while (env)
 		{
 			el = env->content;
-			e = ft_isequal(comm);
-			if (ft_isequal(el->key) > e)
-				e = ft_isequal(el->key);
-			if (ft_is_exact(el->key, comm, e) == 0 && ft_declared(comm) == 0)
-			{
-				free(el->value);
-				el->value = malloc(sizeof(char) * (ft_strlen(comm) - e + 1));
-				if (!el->value)
-					return (2);
-				comm += e + 1;
-				ft_strlcpy(el->value, comm, ft_strlen(comm) + 1);
-				return (0);
-			}
+			e = is_equal(comm);
+			if (is_equal(el->key) > e)
+				e = is_equal(el->key);
+			if (ft_is_exact(el->key, comm, e, 0) == 0 && ft_declared(comm) == 0)
+				return (replace_export(comm, e, el));
 			env = env->next;
 		}
 	}

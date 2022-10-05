@@ -3,43 +3,61 @@
 /*                                                        :::      ::::::::   */
 /*   cd.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: josuna-t <josuna-t@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/03 12:35:56 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 12:39:01 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/08/04 15:15:22 by josuna-t         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
-static int	change_env_pwd(char *oldpwd, t_comm *comm, char **command,
-				t_list *env);
+static int	change_env_pwd(char *oldpwd, t_list *env);
+static int	check_pwd_again(void);
 
-void	ft_cd(char **command, t_comm *comm, t_list *env)
+int	ft_cd(char **command, t_comm *comm, t_list *env)
 {
 	char	*oldpwd;
 
 	oldpwd = getcwd(NULL, 0);
-	if (!oldpwd)
-		exitfree(command, comm, print_error(-1), env);
-	else
+	if (chdir(command[1]) == 0)
 	{
-		if (chdir(command[1]) != 0)
-			print_error(-1);
-		else
+		if (comm->redirections->next == 0 && oldpwd)
 		{
-			if (change_env_pwd(oldpwd, comm, command, env) != 0)
+			if (change_env_pwd(oldpwd, env) != 0)
 			{
 				free(oldpwd);
-				exitfree(command, comm, print_error(-1), env);
+				exitfree(comm, print_error(-1, "cd: error"), env);
 			}
+			free(oldpwd);
 		}
-		free(oldpwd);
+		return (check_pwd_again());
+	}
+	else
+	{
+		if (oldpwd)
+			free(oldpwd);
+		print_error(-1, "cd: error");
+		return (1);
 	}
 }
 
-static int	change_env_pwd(char *oldpwd, t_comm *comm, char **command,
-		t_list *env)
+static int	check_pwd_again(void)
+{
+	char	*pwd;
+
+	pwd = getcwd(NULL, 0);
+	if (!pwd)
+	{
+		print_error(-1, "cd: error");
+		return (1);
+	}
+	else
+		free(pwd);
+	return (0);
+}
+
+static int	change_env_pwd(char *oldpwd, t_list *env)
 {
 	char	*newpwd;
 	char	*to_oldpwd;
@@ -52,16 +70,12 @@ static int	change_env_pwd(char *oldpwd, t_comm *comm, char **command,
 	to_oldpwd = ft_strjoin("OLDPWD=", oldpwd);
 	free(newpwd);
 	if (!to_pwd || !to_oldpwd)
-	{
-		free(oldpwd);
-		exitfree(command, comm, print_error(-1), env);
-	}
+		return (1);
 	if (ft_replace(to_pwd, env) == 2 || ft_replace(to_oldpwd, env) == 2)
 	{
 		free(to_pwd);
 		free(to_oldpwd);
-		free(oldpwd);
-		exitfree(command, comm, print_error(-1), env);
+		return (1);
 	}
 	free(to_pwd);
 	free(to_oldpwd);

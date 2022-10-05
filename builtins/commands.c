@@ -6,42 +6,66 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/21 08:57:57 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 12:26:15 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/08/05 20:10:46 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
-int	ft_pwd(int count)
+int	ft_pwd(t_list **env, t_comm *comm)
 {
 	char	*pwd;
 
-	if (count == 1)
-	{
-		pwd = getcwd(NULL, 0);
-		if (!pwd)
-		{
-			print_error(-1);
-			return (1);
-		}
-		printf("%s\n", pwd);
-		free(pwd);
-	}
-	else
-		printf("pwd: too many arguments\n");
+	pwd = getcwd(NULL, 0);
+	if (!pwd)
+		exitfree(comm, print_error(-1, "pwd: "), *env);
+	printf("%s\n", pwd);
+	free(pwd);
+	check_status(0, env, comm);
 	return (0);
 }
 
-void	ft_env(char **command, t_list *env)
+int	ft_env(char **command, t_list *env)
 {
 	int	i;
 
 	i = count_split(command);
 	if (i != 1)
-		printf("Error: invalid syntax\n");
+	{
+		print_error(22, "env");
+		return (1);
+	}
 	else
 	{
 		if (env)
 			ft_lstiter(env, ft_printenv);
+		return (1);
 	}
+}
+
+//export outils
+
+void	copy_export(char *value, char *comm)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	if (ft_strchr(comm, '$'))
+		value[i++] = 3;
+	while (comm[j])
+	{
+		if (comm[j] == '"')
+			value[i] = 2;
+		else if (comm[j] == '\'')
+			value[i] = 1;
+		else
+			value[i] = comm[j];
+		i++;
+		j++;
+	}
+	if (ft_strchr(comm, '$'))
+		value[i++] = 3;
+	value[i] = 0;
 }

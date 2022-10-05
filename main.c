@@ -3,48 +3,48 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: josuna-t <josuna-t@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 09:57:02 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/08 13:21:56 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/08/09 18:28:28 by josuna-t         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	g_flag;
+t_signal	g_signal;
 
-void	ft_leaks(void)
+void	check_flag(t_list *env)
 {
-	system("leaks -q minishell");
+	if (g_signal.s_flag == 3)
+	{
+		check_status(1, &env, NULL);
+		g_signal.s_flag = 0;
+	}
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	char		*read;
 	t_list		*env;
-	t_signal	sigactions;
 
-	atexit(ft_leaks);
-	sigactions = fill_sigactions();
-	sigaction(SIGINT, &sigactions.new_action, &sigactions.old_action);
 	(void)argc, (void)argv;
+	fill_sigactions();
+	sigaction(SIGINT, &g_signal.parent_action, NULL);
+	sigaction(SIGQUIT, &g_signal.parent_action, NULL);
 	env = envlist(envp);
 	if (!env)
-		return (print_error(-1));
+		return (print_error(-1, "Error"));
 	while (1)
 	{
-		if (g_flag == 1)
-		{
-			print_signal(&sigactions);
-		}
 		read = readline("minishell$ ");
 		if (!read)
 			return (ctrld_handler(env));
+		check_flag(env);
 		if (read[0])
 		{
 			add_history(read);
-			parser(read, env);
+			parser(read, &env);
 		}
 		free(read);
 	}

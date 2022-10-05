@@ -1,40 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_split.c                                         :+:      :+:    :+:   */
+/*   split_og.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/09 11:59:06 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/29 14:24:29 by samoreno         ###   ########.fr       */
+/*   Created: 2022/07/14 14:23:23 by samoreno          #+#    #+#             */
+/*   Updated: 2022/08/04 11:47:01 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../minishell.h"
 
-static int	ft_count_words(char const *s, char c);
 static char	*ft_temporal(char const *s, char c, int start);
 static int	ft_fill_words(char const *s, char c, char **array, size_t word_c);
+static void	ft_quote_open(int qts[2], char qt);
 
-static int	ft_free(char **array, int words, char *temp, int i)
-{
-	int	iter;
-
-	iter = 0;
-	while (iter < words)
-	{
-		if (array[iter])
-			free(array[iter]);
-		iter++;
-	}
-	if (array)
-		free(array);
-	if (temp)
-		free(temp);
-	return (i);
-}
-
-char	**ft_split(char const *s, char c)
+char	**ft_split_og(char const *s, char c)
 {
 	char		**array;
 	size_t		word_c;
@@ -50,23 +32,47 @@ char	**ft_split(char const *s, char c)
 	return (array);
 }
 
-static int	ft_count_words(char const *s, char c)
+static void	ft_quote_open(int qts[2], char qt)
+{
+	if (qt == '"')
+	{
+		if (qts[0] == 0)
+			qts[0] = 1;
+		else
+			qts[0] = 0;
+	}
+	else
+	{
+		if (qts[1] == 0)
+			qts[1] = 1;
+		else
+			qts[1] = 0;
+	}
+}
+
+int	ft_count_words(char const *s, char c)
 {
 	int	iter;
 	int	count;
+	int	qts[2];
 
 	iter = 0;
 	count = 0;
+	qts[0] = 0;
+	qts[1] = 0;
 	if (!ft_strchr(s, c) && ft_strlen(s))
 		return (1);
 	if (s[iter] != c && ft_strlen(s))
 	{
+		if (s[iter] == '"' || s[iter] == '\'')
+			ft_quote_open(qts, s[iter]);
 		count++;
 		iter++;
 	}
 	while (s[iter])
 	{
-		if ((s[iter] != c && s[iter]) && s[iter - 1] == c)
+		if ((s[iter] != c && s[iter]) && s[iter - 1] == c
+			&& (qts[0] == 0 && qts[1] == 0))
 			count++;
 		iter++;
 	}
@@ -87,13 +93,13 @@ static int	ft_fill_words(char const *s, char c, char **array, size_t word_c)
 	{
 		temp = ft_temporal(s, c, iter);
 		if (!temp)
-			return (ft_free(array, word_c, NULL, 0));
+			return (aux_fill_words(array, word_c, temp));
 		iter += ft_strlen(temp);
 		while (s[iter] == c)
 			iter++;
 		array[word] = malloc(sizeof(char) * (ft_strlen(temp) + 1));
 		if (!array[word])
-			return (ft_free(array, word_c, temp, 0));
+			return (aux_fill_words(array, word_c, temp));
 		ft_strlcpy(array[word++], temp, (ft_strlen(temp) + 1));
 		free(temp);
 	}
@@ -103,26 +109,28 @@ static int	ft_fill_words(char const *s, char c, char **array, size_t word_c)
 
 static char	*ft_temporal(char const *s, char c, int start)
 {
-	int		iter;
-	int		chr;
-	int		start_tem;
+	int		iter[3];
+	int		qts[2];
 	char	*temporal;
 
-	iter = 0;
-	chr = 0;
-	start_tem = start;
-	while (s[start_tem])
+	iter[0] = 0;
+	iter[1] = 0;
+	iter[2] = start - 1;
+	qts[0] = 0;
+	qts[1] = 0;
+	while (s[++iter[2]])
 	{
-		if (s[start_tem] == c)
+		if (s[iter[2]] == '"' || s[iter[2]] == '\'')
+			ft_quote_open(qts, s[iter[2]]);
+		if (s[iter[2]] == c && qts[0] == 0 && qts[1] == 0)
 			break ;
-		chr++;
-		start_tem++;
+		iter[1]++;
 	}
-	temporal = malloc(sizeof(char) * (chr + 1));
+	temporal = malloc(sizeof(char) * (iter[1] + 1));
 	if (!temporal)
 		return (NULL);
-	while (start < start_tem)
-		temporal[iter++] = s[start++];
-	temporal[iter] = 0;
+	while (start < iter[2])
+		temporal[iter[0]++] = s[start++];
+	temporal[iter[0]] = 0;
 	return (temporal);
 }

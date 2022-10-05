@@ -6,104 +6,89 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 09:35:52 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 13:53:59 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/08/08 12:48:10 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
-static char	*without_quotes(char *read, t_list *env);
-static int	fill_chars(char *read, char *unquoted, int i, char qt);
-static void	fill_unquoted(char *read, char *unquoted, t_list *env);
+//static char	**piped_parsed(t_list *env, t_comm *comm);
 
-void	parser(char *line, t_list *env)
+static int	check_alone(t_element *elements, t_comm *comm, t_list **env)
 {
-	t_comm	command;
+	if (comm->redirections->next == 0 && elements->command[0])
+	{
+		if (ft_is_exact(elements->command[0], "exit", 4, 1) == 0)
+			check_status(ft_exit(elements->command, comm, *env, 0), env, comm);
+		else if (ft_is_exact(elements->command[0], "cd", 2, 1) == 0)
+			check_status(ft_cd(elements->command, comm, *env), env, comm);
+		else if (ft_is_exact(elements->command[0], "export", 6, 1) == 0)
+			check_status(ft_export(elements->command, comm, *env,
+					count_split(elements->command) - 1), env, comm);
+		else if (ft_is_exact(elements->command[0], "unset", 5, 1) == 0)
+			check_status(ft_unset(elements->command, env), env, comm);
+		else
+			return (0);
+	}
+	else
+		return (0);
+	return (1);
+}
 
-	if (closed_quotes(line) == 1)
-		print_error(22);
+void	parser(char *line, t_list **env)
+{
+	t_comm	comm;
+	int		rch;
+
+	if (closed_quotes(line) == 1 || (ft_strlen(line) == 1 && line[0] == '|'))
+		ft_putstr_fd("minishell: syntax error\n", 2);
 	else
 	{
-		command.parsed = NULL;
-		command.piped = NULL;
-		command.og = line;
-		command.parsed = without_quotes(line, env);
-		if (!command.parsed)
-			exitfree(NULL, &command, print_error(-1), env);
-		command.piped = ft_split(command.parsed, '|');
-		if (!command.piped)
-			exitfree(NULL, &command, print_error(-1), env);
-		ft_simple(&command, env);
-		free(command.parsed);
-		ft_free(command.piped, count_split(command.piped));
+		comm.og = line;
+		comm.redirections = command_list(line, *env);
+		if (!comm.redirections)
+			exitfree(&comm, print_error(-1, "error"), *env);
+		rch = check_alone((t_element *)comm.redirections->content, &comm, env);
+		if (rch == 0)
+			ft_exec(comm, env);
+		ft_lstclear(&comm.redirections, clear_commands);
 	}
 }
 
-static char	*without_quotes(char *read, t_list *env)
+int	check_redirect(int i, char *read, char redirect)
 {
-	int		i;
-	char	*unquoted;
-
-	i = 0;
-	unquoted = malloc(sizeof(char) * (count_quoted(read, env) + 1));
-	if (!unquoted)
-		exit(print_error(-1));
-	unquoted[0] = 0;
-	fill_unquoted(read, unquoted, env);
-	return (unquoted);
-}
-
-static void	fill_unquoted(char *read, char *unquoted, t_list *env)
-{
-	int	i[2];
-
-	i[0] = 0;
-	while (read[i[0]])
-	{
-		if (read[i[0]] == '\'')
-			i[0] = fill_chars(read, unquoted, i[0], '\'');
-		else if (read[i[0]] == '"')
-			i[0] = fill_dq_dollar(read, unquoted, i[0], env);
-		else
-			fill_dollar_nqt(read, unquoted, env, i);
-	}
-}
-
-int	find_fill(char *read, char *unquoted, size_t i, t_list *env)
-{
-	t_dict		*el;
-	size_t		j;
-
 	i++;
-	j = i;
-	while (read[j] && read[j] != '"' && read[j] != ' ' && read[j] != '\'')
-		j++;
-	while (env)
+	if (read[i])
 	{
-		el = env->content;
-		if (check_value(read, el->key, i, j - i) == 0)
+		if (read[i] && read[i] != redirect)
 		{
-			ft_strlcat(unquoted, el->value,
-				(ft_strlen(unquoted) + ft_strlen(el->value) + 1));
-			return (ft_strlen(unquoted));
+			if ((redirect == '<' && read[i] == '>')
+				|| (redirect == '>' && read[i] == '<'))
+				return (-1);
+			else
+				return (i - 1);
 		}
-		env = env->next;
+		if (read[i + 1])
+		{
+			if (read[i + 1] != redirect && ((redirect == '<'
+						&& read[i + 1] != '>') || (redirect == '>'
+						&& read[i + 1] != '<')))
+				return (i);
+			return (-1);
+		}
+		return (i);
 	}
-	return (0);
+	return (-1);
 }
 
-static int	fill_chars(char *read, char *unquoted, int i, char qt)
+void	simple_quote_no_last(char *read, int i[2])
 {
-	int	j;
-
-	j = ft_strlen(unquoted);
-	i++;
-	while (read[i] && read[i] != qt)
+	i[1] += 2;
+	i[0]++;
+	while (read[i[0]] && (read[i[0]] != '\''))
 	{
-		unquoted[j] = read[i];
-		i++;
-		j++;
+		i[1]++;
+		i[0]++;
 	}
-	unquoted[j] = 0;
-	return (i + 1);
+	i[0]++;
 }

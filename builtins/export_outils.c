@@ -6,18 +6,18 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 10:41:24 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 09:35:16 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/08/04 11:16:27 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
 static int	ft_isprev(t_list *now, t_list *next);
-static void	ft_printexport(void *env);
+static void	ft_printexport(t_dict *el);
 
 int	ft_declared(char *comm)
 {
-	if ((size_t)ft_isequal(comm) != ft_strlen(comm))
+	if ((size_t)is_equal(comm) != ft_strlen(comm))
 		return (0);
 	comm[0] = 0;
 	return (1);
@@ -47,7 +47,7 @@ void	ft_order(t_list *env)
 			head = head->next;
 		env = head;
 	}
-	ft_printexport(env->content);
+	ft_printexport(((t_dict *)env->content));
 }
 
 static int	ft_isprev(t_list *now, t_list *next)
@@ -66,16 +66,23 @@ static int	ft_isprev(t_list *now, t_list *next)
 	return (0);
 }
 
-static void	ft_printexport(void *env)
+static void	ft_printexport(t_dict *el)
 {
-	t_dict	*el;
-
-	el = env;
-	if (ft_is_exact(el->key, "?", ft_strlen(el->key) != 0))
+	if (ft_is_exact(el->key, "?", ft_strlen(el->key), 0) != 0
+		&& ft_is_exact(el->key, "_", ft_strlen(el->key), 0) == 1)
 	{
-		if (ft_is_exact(el->key, "_", ft_strlen(el->key)) == 1 && el->value[0])
-			printf("declare -x %s=\"%s\"\n", el->key, el->value);
-		if (ft_is_exact(el->key, "_", ft_strlen(el->key)) == 1 && !el->value[0])
-			printf("declare -x %s\n", el->key);
+		printf("declare -x %s", el->key);
+		if (el->value)
+			print_export_values(el);
+		printf("\n");
+	}
+}
+
+void	fill_value_dict(size_t e, t_dict *entry, char *envp)
+{
+	if (entry->key && (e != ft_strlen(envp) || envp[e - 1] == '='))
+	{
+		envp += e + 1;
+		copy_export(entry->value, envp);
 	}
 }

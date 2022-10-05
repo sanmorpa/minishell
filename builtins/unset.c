@@ -6,72 +6,96 @@
 /*   By: samoreno <samoreno@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 12:03:44 by samoreno          #+#    #+#             */
-/*   Updated: 2022/07/06 12:40:21 by samoreno         ###   ########.fr       */
+/*   Updated: 2022/08/08 10:52:17 by samoreno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
-
-//Debuggear por que no fucniona primero
+#include "../minishell.h"
 
 static int	ft_erase(char *command, t_list **env);
+static int	delete_first_node(t_list **head, char *command);
+static int	unset_error(char **command, int iter);
 
-void	ft_unset(char **command, t_comm *comm, t_list *env)
+int	ft_unset(char **comman, t_list **env)
 {
 	int	iter;
+	int	stat;
 
-	iter = count_split(command) - 1;
-	if (iter > 0)
+	stat = 0;
+	iter = count_split(comman);
+	if (iter > 1)
 	{
-		if (ft_vars(command) == 0)
+		while (--iter >= 1)
 		{
-			while (iter >= 1)
+			if (ft_vars(comman[iter]) == 0 && ft_erase(comman[iter], env) == 0)
+				ft_used(comman, iter);
+			else
 			{
-				if (ft_erase(command[iter], &env) == 2)
-					exitfree(command, comm, 1, env);
-				if (ft_erase(command[iter], &env) == 0)
-					ft_used(command, iter);
-				iter--;
+				if (ft_vars(comman[iter]) != 0 || ft_strchr(comman[iter], '='))
+					stat = unset_error(comman, iter);
 			}
 		}
 	}
+	return (stat);
+}
+
+static int	unset_error(char **command, int iter)
+{
+	if (command)
+	{
+		ft_putstr_fd("minishell: unset: ", 2);
+		print_error(22, command[iter]);
+	}
+	else
+		print_error(22, "minishell: unset");
+	return (1);
 }
 
 static int	ft_erase(char *command, t_list **env)
 {
-	int		e;
+	size_t	e;
 	t_list	*temp;
 	t_dict	*el;
 
 	if (command[0])
 	{
-		el = (*env)->content;
-		e = ft_isequal(command);
-		if (ft_isequal(el->key) > e)
-			e = ft_isequal(el->key);
-		if (ft_is_exact(el->key, command, e) == 0)
-		{
-			printf("entro\n");
-			temp = (*env)->next;
-			ft_lstdelone((*env), ft_delcontent);
-			*env = temp;
+		if (env == NULL || *env == NULL || delete_first_node(env, command) == 0)
 			return (0);
-		}
 		while ((*env)->next)
 		{
 			el = (*env)->next->content;
-			e = ft_isequal(command);
-			if (ft_isequal(el->key) > e)
-				e = ft_isequal(el->key);
-			if (ft_is_exact(el->key, command, e) == 0)
+			e = is_equal_unset(command);
+			if (ft_strlen(el->key) > e)
+				e = ft_strlen(el->key);
+			if (ft_is_exact(el->key, command, e, 0) == 0)
 			{
-				temp = (*env)->next->next;
-				ft_lstdelone((*env)->next, ft_delcontent);
-				(*env)->next = temp;
+				temp = (*env)->next;
+				(*env)->next = (temp)->next;
+				ft_lstdelone(temp, delcontent);
 				return (0);
 			}
 			env = &(*env)->next;
 		}
+	}
+	return (1);
+}
+
+static int	delete_first_node(t_list **head, char *command)
+{
+	int		e;
+	t_list	*temp;
+	t_dict	*el;
+
+	el = (*head)->content;
+	e = is_equal(command);
+	if (is_equal(el->key) > e)
+		e = is_equal(el->key);
+	if (ft_is_exact(el->key, command, e, 0) == 0)
+	{
+		temp = *head;
+		*head = temp->next;
+		ft_lstdelone(temp, delcontent);
+		return (0);
 	}
 	return (1);
 }
