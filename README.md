@@ -60,6 +60,9 @@
 <h2>Usage</h2>
 <div>
     <p>
+<b>Warning!</b> It is necessary to have the C library "readline" installed
+    </p>
+    <p>
         With the Makefile you can compile directly. The rules that it allows are:
         <ul>
          <li>Make: it compiles directly</li>
